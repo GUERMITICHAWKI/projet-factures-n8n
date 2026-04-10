@@ -34,7 +34,4 @@ projet-factures/
 ├── workflow/        # Workflows n8n (JSON)
 └── README.md
 
-## Auteur
-- **Nom** : Chawki Guermiti
-- **Spécialité** : [ta spécialité]
-- **Année** : 2024/2025
+
