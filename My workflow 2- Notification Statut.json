@@ -1,0 +1,140 @@
+{
+  "name": "My workflow 2- Notification Statut",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1k3E28UvvTHWjxBFi1H2-FzWrHPes8MZV9Mv7d93XFOQ",
+          "mode": "list",
+          "cachedResultName": "Gestion Factures",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1k3E28UvvTHWjxBFi1H2-FzWrHPes8MZV9Mv7d93XFOQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Factures",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1k3E28UvvTHWjxBFi1H2-FzWrHPes8MZV9Mv7d93XFOQ/edit#gid=0"
+        },
+        "event": "rowUpdate",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "66e39aee-5a93-4b2b-befa-23a3a84d34b2",
+      "name": "Google Sheets Trigger",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "qQE7OjfRYQzMCnq1",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "4fd720a7-a4b0-4c16-abd7-889aeff78eb3",
+              "leftValue": "={{ $json.Statut }}",
+              "rightValue": "En attente",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        208,
+        0
+      ],
+      "id": "23a72275-284b-4502-b031-0300f7aed184",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.Email_user }}",
+        "subject": "Mise à jour de votre facture",
+        "message": "=<h2>Bonjour,</h2>\n\n<p>Votre facture a été traitée par notre équipe.</p>\n\n<p><b>Statut :</b> \n<span style=\"color: {{ $json.Statut.toLowerCase().includes('rejet') && $json.Commentaire ? '<p><b>Motif :</b> ' + $json.Commentaire + '</p>' : '' }}\n</span>\n</p>\n\n{{ $json.Commentaire ? '<p><b>Motif :</b> ' + $json.Commentaire + '</p>' : '' }}\n\n<ul>\n  <li><b>Fournisseur :</b> {{ $json.Fournisseur }}</li>\n  <li><b>Montant :</b> {{ $json.Montant }} DT</li>\n  <li><b>Date facture :</b> {{ $json.Date_facture }}</li>\n</ul>\n<p>Merci de votre confiance.</p>\n\n<p>Cordialement,<br><b>Service Comptabilité</b></p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        416,
+        -96
+      ],
+      "id": "2040e790-b81f-4922-8d5c-d63c12644eb4",
+      "name": "Send a message",
+      "webhookId": "8eb8a85b-4618-46d9-8228-375bd2c24c77",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "XMc04IcwohYvig4Q",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "fba2d737-7b32-4d90-aebd-67c9b1c1edac",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ef213a3c88a4d771ed6123df7ff92a125923751329e683bf77a89bc6cafb695c"
+  },
+  "id": "KJZMWbc336FYLUYQ",
+  "tags": []
+}

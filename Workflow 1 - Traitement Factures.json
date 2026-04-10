@@ -144,7 +144,7 @@
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "const texte = $input.item.json.content.parts[0].text;\nconst nettoye = texte.replace(/```json|```/g, '').trim();\nconst data = JSON.parse(nettoye);\n\nreturn {\n  json: {\n    fournisseur: data.fournisseur || '',\n    date_facture: data.date_facture || '',\n    montant: data.montant || 0,\n    numero_facture: data.numero_facture || ''\n  }\n};"
+        "jsCode": "const texte = $input.item.json.content.parts[0].text;\nconst nettoye = texte.replace(/```json|```/g, '').trim();\nconst data = JSON.parse(nettoye);\n\n// Validation des données\nconst erreurs = [];\n\nif (!data.fournisseur || data.fournisseur.includes('[')) {\n  erreurs.push('Fournisseur non détecté');\n}\nif (!data.date_facture || data.date_facture.includes('[')) {\n  erreurs.push('Date non détectée');\n}\nif (!data.montant || data.montant === 0) {\n  erreurs.push('Montant non détecté');\n}\nif (!data.numero_facture || data.numero_facture.includes('[')) {\n  erreurs.push('Numéro de facture non détecté');\n}\n\nreturn {\n  json: {\n    fournisseur: data.fournisseur || 'Non détecté',\n    date_facture: data.date_facture || 'Non détectée',\n    montant: data.montant || 0,\n    numero_facture: data.numero_facture || 'Non détecté',\n    statut_extraction: erreurs.length > 0 ? 'Incomplet' : 'Complet',\n    erreurs: erreurs.join(', ')\n  }\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -290,6 +290,52 @@
           "name": "Google Sheets account"
         }
       }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Webhook').item.json.body.email }}",
+        "subject": "Votre facture a été reçue ✅",
+        "message": "=<h2>Bonjour {{ $('Webhook').item.json.body.nom }},</h2>\n\n<p>Votre facture a bien été reçue et est en cours de traitement.</p>\n\n<p>Vous serez notifié par email dès qu'elle sera traitée par notre équipe.</p>\n\n<p>Merci de votre confiance.</p>\n\n<p>Cordialement,<br><b>Service Comptabilité</b></p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1536,
+        -16
+      ],
+      "id": "1b976717-5b23-4ace-b7bb-b9564b960867",
+      "name": "Send a message",
+      "webhookId": "517530ec-5538-42ab-9834-82740f734ea3",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "XMc04IcwohYvig4Q",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "guermitichawki@gmail.com",
+        "subject": "Nouvelle facture reçue 🔔",
+        "message": "=<h2>Nouvelle facture reçue</h2>\n\n<h3>Informations utilisateur :</h3>\n<ul>\n  <li><b>Nom :</b> {{ $('Webhook').item.json.body.nom }}</li>\n  <li><b>Email :</b> {{ $('Webhook').item.json.body.email }}</li>\n</ul>\n\n<h3>Détails de la facture :</h3>\n<ul>\n  <li><b>Fournisseur :</b> {{ $('Code in JavaScript').item.json.fournisseur }}</li>\n  <li><b>Date :</b> {{ $('Code in JavaScript').item.json.date_facture }}</li>\n  <li><b>Montant :</b> {{ $('Code in JavaScript').item.json.montant }} DT</li>\n  <li><b>Numéro :</b> {{ $('Code in JavaScript').item.json.numero_facture }}</li>\n</ul>\n\n<h3>Action requise :</h3>\n<p>Veuillez consulter et traiter cette facture dans les plus brefs délais.</p>\n<ul>\n  <li><a href=\"{{ $('Upload file').item.json.webViewLink }}\">📄 Consulter le PDF</a></li>\n  <li><a href=\"https://docs.google.com/spreadsheets\">📊 Ouvrir Google Sheets</a></li>\n</ul>\n\n<p>Cordialement,<br><b>Système de gestion des factures</b></p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1744,
+        -16
+      ],
+      "id": "5336ab4c-d7a5-4673-a87a-62f06d62bb6b",
+      "name": "Send a message1",
+      "webhookId": "ec6bdc60-99ff-4ba9-b115-8d031314152c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "XMc04IcwohYvig4Q",
+          "name": "Gmail account"
+        }
+      }
     }
   ],
   "pinData": {
@@ -376,15 +422,37 @@
           }
         ]
       ]
+    },
+    "Append or update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
     "executionOrder": "v1",
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "2fa60bfa-f810-4623-a739-4a1e5c1c52dc",
+  "versionId": "ce6117b0-e581-45f8-8cf2-72e2adf34e20",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "ef213a3c88a4d771ed6123df7ff92a125923751329e683bf77a89bc6cafb695c"
