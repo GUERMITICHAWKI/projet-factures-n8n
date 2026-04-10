@@ -1,0 +1,394 @@
+{
+  "name": "Workflow 1 - Traitement Factures",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "factures",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "59c540a2-896c-4985-90cd-f1c3bd6c89a0",
+      "name": "Webhook",
+      "webhookId": "a05fac00-543b-4652-afbb-7a269de29f22"
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "=pdf",
+        "name": "={{ $json.body.nom }}_{{ Date.now() }}.pdf\n",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1qGVqcN5bP6Agu3KzWP-LZNq0CGH_Tu29",
+          "mode": "list",
+          "cachedResultName": "Factures",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1qGVqcN5bP6Agu3KzWP-LZNq0CGH_Tu29"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        208,
+        0
+      ],
+      "id": "46ce560a-762d-400e-8beb-115e48843854",
+      "name": "Upload file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "UbGs9zCL4gQ3MgFK",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.pdf.co/v1/pdf/convert/to/text",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"url\": \"https://drive.google.com/uc?export=download&id={{ $('Upload file').item.json.id }}\",\n  \"inline\": true,\n  \"async\": false\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        560,
+        -16
+      ],
+      "id": "55bafc18-b211-4a32-9e4a-20f3b98ae058",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "2nS9ag55UQaYZpzL",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "share",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "permissionsUi": {
+          "permissionsValues": {
+            "role": "reader",
+            "type": "anyone"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        416,
+        0
+      ],
+      "id": "dbd3e29b-b6e1-4d7e-80b2-ad5e50b75ebf",
+      "name": "Share file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "UbGs9zCL4gQ3MgFK",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash-lite",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash-lite"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Tu es un expert comptable. Analyse ce texte de facture et extrais les informations suivantes.\nRéponds UNIQUEMENT avec un JSON valide, sans texte autour, sans markdown, sans backticks.\n\n{\n  \"fournisseur\": \"nom de l'entreprise qui émet la facture\",\n  \"date_facture\": \"date au format JJ/MM/AAAA\",\n  \"montant\": valeur numérique sans symbole,\n  \"numero_facture\": \"numéro de la facture si présent\"\n}\n\nTexte de la facture :\n{{ $json.body }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        768,
+        -16
+      ],
+      "id": "57524ed1-5fc2-49c3-9d7b-f899c6a35072",
+      "name": "Message a model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "qMzmn3dVP8DdfC8h",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const texte = $input.item.json.content.parts[0].text;\nconst nettoye = texte.replace(/```json|```/g, '').trim();\nconst data = JSON.parse(nettoye);\n\nreturn {\n  json: {\n    fournisseur: data.fournisseur || '',\n    date_facture: data.date_facture || '',\n    montant: data.montant || 0,\n    numero_facture: data.numero_facture || ''\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        -16
+      ],
+      "id": "8de87ca4-95c6-4c96-975a-1eda2f3c31aa",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1k3E28UvvTHWjxBFi1H2-FzWrHPes8MZV9Mv7d93XFOQ",
+          "mode": "list",
+          "cachedResultName": "Gestion Factures",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1k3E28UvvTHWjxBFi1H2-FzWrHPes8MZV9Mv7d93XFOQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Factures",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1k3E28UvvTHWjxBFi1H2-FzWrHPes8MZV9Mv7d93XFOQ/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Statut": "En attente",
+            "Montant": "={{ $json.montant }}",
+            "Date_facture": "={{ $json.date_facture }}",
+            "Fournisseur": "={{ $json.fournisseur }}",
+            "Email_user": "={{ $('Webhook').item.json.body.email }}",
+            "Date_reception": "={{ $now.format('DD/MM/YYYY') }}",
+            "ID": "={{ $now.toMillis() }}",
+            "Lien_PDF": "={{ $('Upload file').item.json.webViewLink }}"
+          },
+          "matchingColumns": [
+            "ID"
+          ],
+          "schema": [
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Date_reception",
+              "displayName": "Date_reception",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email_user",
+              "displayName": "Email_user",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Fournisseur",
+              "displayName": "Fournisseur",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date_facture",
+              "displayName": "Date_facture",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Montant",
+              "displayName": "Montant",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Statut",
+              "displayName": "Statut",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Lien_PDF",
+              "displayName": "Lien_PDF",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Commentaire",
+              "displayName": "Commentaire",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1328,
+        -16
+      ],
+      "id": "5b871dbc-18a0-450b-83e2-9d1269934d75",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "SJhAIlRu2s1EqAvd",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Message a model": [
+      {
+        "json": {
+          "content": {
+            "parts": [
+              {
+                "text": "```json\n{\n  \"fournisseur\": \"[Nom de l'entreprise]\",\n  \"date_facture\": \"12/07/2021\",\n  \"montant\": 400.00,\n  \"numero_facture\": \"552\"\n}\n```"
+              }
+            ],
+            "role": "model"
+          },
+          "finishReason": "STOP",
+          "index": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload file": {
+      "main": [
+        [
+          {
+            "node": "Share file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Share file": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "2fa60bfa-f810-4623-a739-4a1e5c1c52dc",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ef213a3c88a4d771ed6123df7ff92a125923751329e683bf77a89bc6cafb695c"
+  },
+  "id": "gcW6QncAyU8cc7KR",
+  "tags": []
+}
