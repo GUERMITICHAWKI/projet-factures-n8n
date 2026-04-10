@@ -17,11 +17,24 @@ des factures PDF grâce à n8n, l'IA Gemini et les services Google.
 - Dépôt de factures PDF via formulaire web
 - Sauvegarde automatique sur Google Drive
 - Extraction du texte PDF automatique
-- Analyse IA et extraction des données (fournisseur, montant, date)
+- Analyse et extraction des données par IA
 - Enregistrement automatique dans Google Sheets
-- Email de confirmation automatique
+- Email de confirmation à l'utilisateur
+- Notification email à l'admin
+- Changement de statut (Approuvée / Rejetée)
+- Notification automatique à l'utilisateur selon le statut
 
-## Workflow n8n
-![Workflow](workflow/screenshot.png)
+## Workflows
+- **Workflow 1** : Traitement automatique des factures
+- **Workflow 2** : Notification changement de statut
 
 ## Structure du projet
+projet-factures/
+├── frontend/        # Application React
+├── workflow/        # Workflows n8n (JSON)
+└── README.md
+
+## Auteur
+- **Nom** : Chawki Guermiti
+- **Spécialité** : [ta spécialité]
+- **Année** : 2024/2025
