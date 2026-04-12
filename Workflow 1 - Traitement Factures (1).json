@@ -11,11 +11,11 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [
-        0,
-        0
+        -416,
+        160
       ],
-      "id": "59c540a2-896c-4985-90cd-f1c3bd6c89a0",
-      "name": "Webhook",
+      "id": "b3f7f48f-e9d3-44a9-bafb-1ccf280c2d8d",
+      "name": "Webhook1",
       "webhookId": "a05fac00-543b-4652-afbb-7a269de29f22"
     },
     {
@@ -34,16 +34,18 @@
           "cachedResultName": "Factures",
           "cachedResultUrl": "https://drive.google.com/drive/folders/1qGVqcN5bP6Agu3KzWP-LZNq0CGH_Tu29"
         },
-        "options": {}
+        "options": {
+          "simplifyOutput": false
+        }
       },
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
       "position": [
-        208,
-        0
+        -208,
+        160
       ],
-      "id": "46ce560a-762d-400e-8beb-115e48843854",
-      "name": "Upload file",
+      "id": "18271346-aaf8-4419-8099-0d3c1e4ec349",
+      "name": "Upload file1",
       "credentials": {
         "googleDriveOAuth2Api": {
           "id": "UbGs9zCL4gQ3MgFK",
@@ -59,17 +61,17 @@
         "genericAuthType": "httpHeaderAuth",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"url\": \"https://drive.google.com/uc?export=download&id={{ $('Upload file').item.json.id }}\",\n  \"inline\": true,\n  \"async\": false\n}",
+        "jsonBody": "={\n  \"url\": \"https://drive.google.com/uc?export=download&id={{ $('Upload file1').item.json.id }}\",\n  \"inline\": true,\n  \"async\": false\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        560,
-        -16
+        144,
+        144
       ],
-      "id": "55bafc18-b211-4a32-9e4a-20f3b98ae058",
-      "name": "HTTP Request",
+      "id": "71580d9f-729e-45a2-874b-271c8d442222",
+      "name": "HTTP Request1",
       "credentials": {
         "httpHeaderAuth": {
           "id": "2nS9ag55UQaYZpzL",
@@ -96,11 +98,11 @@
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
       "position": [
-        416,
-        0
+        0,
+        160
       ],
-      "id": "dbd3e29b-b6e1-4d7e-80b2-ad5e50b75ebf",
-      "name": "Share file",
+      "id": "000eb75c-7ba9-4773-8a4b-a75ce68b0eaa",
+      "name": "Share file1",
       "credentials": {
         "googleDriveOAuth2Api": {
           "id": "UbGs9zCL4gQ3MgFK",
@@ -110,50 +112,17 @@
     },
     {
       "parameters": {
-        "modelId": {
-          "__rl": true,
-          "value": "models/gemini-2.5-flash-lite",
-          "mode": "list",
-          "cachedResultName": "models/gemini-2.5-flash-lite"
-        },
-        "messages": {
-          "values": [
-            {
-              "content": "=Tu es un expert comptable. Analyse ce texte de facture et extrais les informations suivantes.\nRéponds UNIQUEMENT avec un JSON valide, sans texte autour, sans markdown, sans backticks.\n\n{\n  \"fournisseur\": \"nom de l'entreprise qui émet la facture\",\n  \"date_facture\": \"date au format JJ/MM/AAAA\",\n  \"montant\": valeur numérique sans symbole,\n  \"numero_facture\": \"numéro de la facture si présent\"\n}\n\nTexte de la facture :\n{{ $json.body }}"
-            }
-          ]
-        },
-        "builtInTools": {},
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.googleGemini",
-      "typeVersion": 1.1,
-      "position": [
-        768,
-        -16
-      ],
-      "id": "57524ed1-5fc2-49c3-9d7b-f899c6a35072",
-      "name": "Message a model",
-      "credentials": {
-        "googlePalmApi": {
-          "id": "qMzmn3dVP8DdfC8h",
-          "name": "Google Gemini(PaLM) Api account"
-        }
-      }
-    },
-    {
-      "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "const texte = $input.item.json.content.parts[0].text;\nconst nettoye = texte.replace(/```json|```/g, '').trim();\nconst data = JSON.parse(nettoye);\n\n// Validation des données\nconst erreurs = [];\n\nif (!data.fournisseur || data.fournisseur.includes('[')) {\n  erreurs.push('Fournisseur non détecté');\n}\nif (!data.date_facture || data.date_facture.includes('[')) {\n  erreurs.push('Date non détectée');\n}\nif (!data.montant || data.montant === 0) {\n  erreurs.push('Montant non détecté');\n}\nif (!data.numero_facture || data.numero_facture.includes('[')) {\n  erreurs.push('Numéro de facture non détecté');\n}\n\nreturn {\n  json: {\n    fournisseur: data.fournisseur || 'Non détecté',\n    date_facture: data.date_facture || 'Non détectée',\n    montant: data.montant || 0,\n    numero_facture: data.numero_facture || 'Non détecté',\n    statut_extraction: erreurs.length > 0 ? 'Incomplet' : 'Complet',\n    erreurs: erreurs.join(', ')\n  }\n};"
+        "jsCode": "const texte = $input.item.json.content.parts[0].text;\nconst nettoye = texte.replace(/```json|```/g, '').trim();\nconst data = JSON.parse(nettoye);\n\nconst erreurs = [];\n\nif (!data.fournisseur || data.fournisseur.includes('[')) {\n  erreurs.push('Fournisseur non détecté');\n}\nif (!data.date_facture || data.date_facture.includes('[')) {\n  erreurs.push('Date non détectée');\n}\nif (!data.montant || data.montant === 0) {\n  erreurs.push('Montant non détecté');\n}\nif (!data.numero_facture || data.numero_facture.includes('[')) {\n  erreurs.push('Numéro non détecté');\n}\n\nreturn {\n  json: {\n    fournisseur: data.fournisseur || 'Non détecté',\n    date_facture: data.date_facture || 'Non détectée',\n    montant: data.montant || 0,\n    numero_facture: data.numero_facture || 'Non détecté',\n    statut_extraction: erreurs.length > 0 ? 'Incomplet' : 'Complet',\n    erreurs: erreurs.join(', ')\n  }\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1120,
-        -16
+        704,
+        144
       ],
-      "id": "8de87ca4-95c6-4c96-975a-1eda2f3c31aa",
-      "name": "Code in JavaScript"
+      "id": "36c4447a-06f9-4933-a966-d608353c9a7b",
+      "name": "Code in JavaScript1"
     },
     {
       "parameters": {
@@ -179,10 +148,11 @@
             "Montant": "={{ $json.montant }}",
             "Date_facture": "={{ $json.date_facture }}",
             "Fournisseur": "={{ $json.fournisseur }}",
-            "Email_user": "={{ $('Webhook').item.json.body.email }}",
+            "Email_user": "={{ $('Webhook1').item.json.body.email }}",
             "Date_reception": "={{ $now.format('DD/MM/YYYY') }}",
             "ID": "={{ $now.toMillis() }}",
-            "Lien_PDF": "={{ $('Upload file').item.json.webViewLink }}"
+            "Lien_PDF": "={{ $('Upload file1').item.json.webViewLink }}",
+            "Qualité": "={{ $json.erreurs ? $json.erreurs : 'Complet' }}"
           },
           "matchingColumns": [
             "ID"
@@ -269,6 +239,16 @@
               "display": true,
               "type": "string",
               "canBeUsedToMatch": true
+            },
+            {
+              "id": "Qualité",
+              "displayName": "Qualité",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -279,11 +259,11 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        1328,
-        -16
+        912,
+        144
       ],
-      "id": "5b871dbc-18a0-450b-83e2-9d1269934d75",
-      "name": "Append or update row in sheet",
+      "id": "71c89f1e-8698-47e8-9983-23b072cc3f1b",
+      "name": "Append or update row in sheet1",
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "SJhAIlRu2s1EqAvd",
@@ -293,19 +273,19 @@
     },
     {
       "parameters": {
-        "sendTo": "={{ $('Webhook').item.json.body.email }}",
+        "sendTo": "={{ $('Webhook1').item.json.body.email }}",
         "subject": "Votre facture a été reçue ✅",
-        "message": "=<h2>Bonjour {{ $('Webhook').item.json.body.nom }},</h2>\n\n<p>Votre facture a bien été reçue et est en cours de traitement.</p>\n\n<p>Vous serez notifié par email dès qu'elle sera traitée par notre équipe.</p>\n\n<p>Merci de votre confiance.</p>\n\n<p>Cordialement,<br><b>Service Comptabilité</b></p>",
+        "message": "=<h2>Bonjour {{ $('Webhook1').item.json.body.nom }},</h2>\n\n<p>Votre facture a bien été reçue et est en cours de traitement.</p>\n\n<p>Vous serez notifié par email dès qu'elle sera traitée par notre équipe.</p>\n\n<p>Merci de votre confiance.</p>\n\n<p>Cordialement,<br><b>Service Comptabilité</b></p>",
         "options": {}
       },
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.2,
       "position": [
-        1536,
-        -16
+        1120,
+        144
       ],
-      "id": "1b976717-5b23-4ace-b7bb-b9564b960867",
-      "name": "Send a message",
+      "id": "e7d1599e-ec7f-46cb-a3c3-93656e0d86e8",
+      "name": "Send a message2",
       "webhookId": "517530ec-5538-42ab-9834-82740f734ea3",
       "credentials": {
         "gmailOAuth2": {
@@ -318,17 +298,17 @@
       "parameters": {
         "sendTo": "guermitichawki@gmail.com",
         "subject": "Nouvelle facture reçue 🔔",
-        "message": "=<h2>Nouvelle facture reçue</h2>\n\n<h3>Informations utilisateur :</h3>\n<ul>\n  <li><b>Nom :</b> {{ $('Webhook').item.json.body.nom }}</li>\n  <li><b>Email :</b> {{ $('Webhook').item.json.body.email }}</li>\n</ul>\n\n<h3>Détails de la facture :</h3>\n<ul>\n  <li><b>Fournisseur :</b> {{ $('Code in JavaScript').item.json.fournisseur }}</li>\n  <li><b>Date :</b> {{ $('Code in JavaScript').item.json.date_facture }}</li>\n  <li><b>Montant :</b> {{ $('Code in JavaScript').item.json.montant }} DT</li>\n  <li><b>Numéro :</b> {{ $('Code in JavaScript').item.json.numero_facture }}</li>\n</ul>\n\n<h3>Action requise :</h3>\n<p>Veuillez consulter et traiter cette facture dans les plus brefs délais.</p>\n<ul>\n  <li><a href=\"{{ $('Upload file').item.json.webViewLink }}\">📄 Consulter le PDF</a></li>\n  <li><a href=\"https://docs.google.com/spreadsheets\">📊 Ouvrir Google Sheets</a></li>\n</ul>\n\n<p>Cordialement,<br><b>Système de gestion des factures</b></p>",
+        "message": "=<h2>Nouvelle facture reçue</h2>\n\n<h3>Informations utilisateur :</h3>\n<ul>\n  <li><b>Nom :</b> {{ $('Webhook1').item.json.body.nom }}</li>\n  <li><b>Email :</b> {{ $('Webhook1').item.json.body.email }}</li>\n</ul>\n\n<h3>Détails de la facture :</h3>\n<ul>\n  <li><b>Fournisseur :</b> {{ $('Code in JavaScript1').item.json.fournisseur }}</li>\n  <li><b>Date :</b> {{ $('Code in JavaScript1').item.json.date_facture }}</li>\n  <li><b>Montant :</b> {{ $('Code in JavaScript1').item.json.montant }} DT</li>\n  <li><b>Numéro :</b> {{ $('Code in JavaScript1').item.json.numero_facture }}</li>\n</ul>\n\n<h3>Action requise :</h3>\n<p>Veuillez consulter et traiter cette facture dans les plus brefs délais.</p>\n<ul>\n  <li><a href=\"{{ $('Upload file1').item.json.webViewLink }}\">📄 Consulter le PDF</a></li>\n  <li><a href=\"https://docs.google.com/spreadsheets\">📊 Ouvrir Google Sheets</a></li>\n</ul>\n\n<p>Cordialement,<br><b>Système de gestion des factures</b></p>",
         "options": {}
       },
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.2,
       "position": [
-        1744,
-        -16
+        1328,
+        144
       ],
-      "id": "5336ab4c-d7a5-4673-a87a-62f06d62bb6b",
-      "name": "Send a message1",
+      "id": "ff583696-c77e-4ed6-a65c-4a9883e72cf8",
+      "name": "Send a message3",
       "webhookId": "ec6bdc60-99ff-4ba9-b115-8d031314152c",
       "credentials": {
         "gmailOAuth2": {
@@ -336,61 +316,66 @@
           "name": "Gmail account"
         }
       }
-    }
-  ],
-  "pinData": {
-    "Message a model": [
-      {
-        "json": {
-          "content": {
-            "parts": [
-              {
-                "text": "```json\n{\n  \"fournisseur\": \"[Nom de l'entreprise]\",\n  \"date_facture\": \"12/07/2021\",\n  \"montant\": 400.00,\n  \"numero_facture\": \"552\"\n}\n```"
-              }
-            ],
-            "role": "model"
-          },
-          "finishReason": "STOP",
-          "index": 0
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Tu es un expert comptable. Analyse ce texte de facture et extrais les informations suivantes.\nRéponds UNIQUEMENT avec un JSON valide, sans texte autour, sans markdown, sans backticks.\n\n{\n  \"fournisseur\": \"nom de l'entreprise qui émet la facture\",\n  \"date_facture\": \"date au format JJ/MM/AAAA\",\n  \"montant\": valeur numérique sans symbole,\n  \"numero_facture\": \"numéro de la facture si présent\"\n}\n\nTexte de la facture :\n{{ $('HTTP Request1').item.json.body }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        352,
+        144
+      ],
+      "id": "d579c0c3-b108-4e0d-843a-f5ec214dbf49",
+      "name": "Message a model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Sm6OQBcXIY8UWy7o",
+          "name": "Google Gemini(PaLM) Api account 3"
         }
       }
-    ]
-  },
+    }
+  ],
+  "pinData": {},
   "connections": {
-    "Webhook": {
+    "Webhook1": {
       "main": [
         [
           {
-            "node": "Upload file",
+            "node": "Upload file1",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Upload file": {
+    "Upload file1": {
       "main": [
         [
           {
-            "node": "Share file",
+            "node": "Share file1",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Share file": {
-      "main": [
-        [
-          {
-            "node": "HTTP Request",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "HTTP Request": {
+    "HTTP Request1": {
       "main": [
         [
           {
@@ -401,44 +386,55 @@
         ]
       ]
     },
+    "Share file1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Send a message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message2": {
+      "main": [
+        [
+          {
+            "node": "Send a message3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
     "Message a model": {
       "main": [
         [
           {
-            "node": "Code in JavaScript",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Code in JavaScript": {
-      "main": [
-        [
-          {
-            "node": "Append or update row in sheet",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Append or update row in sheet": {
-      "main": [
-        [
-          {
-            "node": "Send a message",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Send a message": {
-      "main": [
-        [
-          {
-            "node": "Send a message1",
+            "node": "Code in JavaScript1",
             "type": "main",
             "index": 0
           }
@@ -452,7 +448,7 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "ce6117b0-e581-45f8-8cf2-72e2adf34e20",
+  "versionId": "d3e4177c-b76d-4549-bba7-81a1835faf25",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "ef213a3c88a4d771ed6123df7ff92a125923751329e683bf77a89bc6cafb695c"
