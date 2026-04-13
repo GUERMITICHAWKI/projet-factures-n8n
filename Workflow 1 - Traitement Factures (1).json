@@ -12,7 +12,7 @@
       "typeVersion": 2.1,
       "position": [
         -416,
-        160
+        144
       ],
       "id": "b3f7f48f-e9d3-44a9-bafb-1ccf280c2d8d",
       "name": "Webhook1",
@@ -41,8 +41,8 @@
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
       "position": [
-        -208,
-        160
+        -192,
+        144
       ],
       "id": "18271346-aaf8-4419-8099-0d3c1e4ec349",
       "name": "Upload file1",
@@ -67,7 +67,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        144,
+        256,
         144
       ],
       "id": "71580d9f-729e-45a2-874b-271c8d442222",
@@ -98,8 +98,8 @@
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
       "position": [
-        0,
-        160
+        32,
+        144
       ],
       "id": "000eb75c-7ba9-4773-8a4b-a75ce68b0eaa",
       "name": "Share file1",
@@ -118,7 +118,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        704,
+        832,
         144
       ],
       "id": "36c4447a-06f9-4933-a966-d608353c9a7b",
@@ -259,7 +259,7 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        912,
+        1056,
         144
       ],
       "id": "71c89f1e-8698-47e8-9983-23b072cc3f1b",
@@ -281,7 +281,7 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.2,
       "position": [
-        1120,
+        1280,
         144
       ],
       "id": "e7d1599e-ec7f-46cb-a3c3-93656e0d86e8",
@@ -304,7 +304,7 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.2,
       "position": [
-        1328,
+        1504,
         144
       ],
       "id": "ff583696-c77e-4ed6-a65c-4a9883e72cf8",
@@ -321,9 +321,9 @@
       "parameters": {
         "modelId": {
           "__rl": true,
-          "value": "models/gemini-2.5-flash",
+          "value": "models/gemini-2.5-flash-lite",
           "mode": "list",
-          "cachedResultName": "models/gemini-2.5-flash"
+          "cachedResultName": "models/gemini-2.5-flash-lite"
         },
         "messages": {
           "values": [
@@ -338,15 +338,15 @@
       "type": "@n8n/n8n-nodes-langchain.googleGemini",
       "typeVersion": 1.1,
       "position": [
-        352,
+        464,
         144
       ],
-      "id": "d579c0c3-b108-4e0d-843a-f5ec214dbf49",
+      "id": "53e9ae0d-91f3-470c-8ef8-5aba62e3e01a",
       "name": "Message a model",
       "credentials": {
         "googlePalmApi": {
-          "id": "Sm6OQBcXIY8UWy7o",
-          "name": "Google Gemini(PaLM) Api account 3"
+          "id": "ka0k6Y4f4ZlqnEJl",
+          "name": "Google Gemini(PaLM) Api account 2"
         }
       }
     }
@@ -430,6 +430,11 @@
         ]
       ]
     },
+    "Send a message3": {
+      "main": [
+        []
+      ]
+    },
     "Message a model": {
       "main": [
         [
@@ -446,9 +451,12 @@
   "settings": {
     "executionOrder": "v1",
     "binaryMode": "separate",
-    "availableInMCP": false
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "saveExecutionProgress": true,
+    "callerPolicy": "workflowsFromSameOwner"
   },
-  "versionId": "d3e4177c-b76d-4549-bba7-81a1835faf25",
+  "versionId": "01ddf230-2d69-4b1e-bf07-31c99952e0cf",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "ef213a3c88a4d771ed6123df7ff92a125923751329e683bf77a89bc6cafb695c"
